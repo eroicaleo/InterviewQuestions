@@ -1,0 +1,4 @@
+Assume a password has 6 characters.
+A function call will return a triplet which is 3-char in the password, order is the same.
+E.g. google, the triplets can be ggl, goe, oog, ool......
+How to crack the password most effectively?
