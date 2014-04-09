@@ -9,6 +9,7 @@ using namespace std;
 
 const size_t codeLength = 6;
 const size_t tupleLength = 3;
+size_t readyLength = codeLength - 1;
 
 struct LetterEntry {
     char myLetter;
@@ -22,7 +23,69 @@ struct LetterEntry {
     // member function
     void updateMyRelation(char own, const map<char, int> &preRelation, const map<char, int> &postRelation);
     bool satisfyARelation(char own, const map<char, int> &preRelation, const map<char, int> &postRelation) const;
+    bool readyRegular() const;
+    bool readyFromFront() const;
+    bool readyFromBack() const;
+
+    int RemoveOneLetter(char c, int frontOrBack);
 };
+
+int LetterEntry::RemoveOneLetter(char c, int frontOrBack) {
+    vector<int>& vecRef = frontOrBack > 0 ? preArray : postArray;
+    if (vecRef[c-'a'] == 0) {
+	cerr << "Can not remove " << c << " from relations of " << myLetter << endl;
+	exit(66);
+    }
+    return --vecRef[c-'a'];
+}
+
+bool LetterEntry::readyFromFront() const {
+    if (!repeat)
+	return false;
+    int sum = 0;
+    for (auto i : postArray) {
+	sum += i;
+    }
+    if (sum < readyLength-1) {
+	return false;
+    }
+    // post processing current letter
+    // 1. Move one letter to ready array
+    // 2. Remove the invalid successor, trick part
+    cout << "char " << myLetter << " is ready from front." << endl;
+    return true;
+}
+
+bool LetterEntry::readyFromBack() const {
+    if (!repeat)
+	return false;
+    int sum = 0;
+    for (auto i : preArray) {
+	sum += i;
+    }
+    if (sum == readyLength-1) {
+	cout << "char " << myLetter << " is ready from back." << endl;
+	return true;
+    }
+    return false;
+}
+
+bool LetterEntry::readyRegular() const {
+    if (repeat)
+	return false;
+    int sum = 0;
+    for (auto i : preArray) {
+	sum += i;
+    }
+    for (auto i : postArray) {
+	sum += i;
+    }
+    if (sum == readyLength-1) {
+	cout << "char " << myLetter << " is ready regularly." << endl;
+	return true;
+    }
+    return false;
+}
 
 bool LetterEntry::satisfyARelation(char own, const map<char, int> &preRelation, const map<char, int> &postRelation) const {
     if ((own != myLetter) && valid) {
@@ -70,6 +133,9 @@ void LetterEntry::updateMyRelation(char own, const map<char, int> &preRelation, 
 	    repeatCount = 1+max(cnt, preArray[c-'a']);
 	}
     }
+    readyRegular();
+    readyFromFront();
+    readyFromBack();
 }
 
 // operator functions
